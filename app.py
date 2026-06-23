@@ -3,9 +3,11 @@ import pandas as pd
 import plotly.express as px
 from pathlib import Path
 
-# ------------------------------------------------------------
-# Page Configuration
-# ------------------------------------------------------------
+# ============================================================
+# Multi-Touch Marketing Attribution and ROI Dashboard
+# Author: Chaitanya Pawar
+# ============================================================
+
 st.set_page_config(
     page_title="Multi-Touch Attribution ROI Dashboard",
     page_icon="📊",
@@ -13,7 +15,7 @@ st.set_page_config(
 )
 
 # ------------------------------------------------------------
-# Custom CSS
+# Basic Styling
 # ------------------------------------------------------------
 st.markdown(
     """
@@ -25,15 +27,19 @@ st.markdown(
         padding-top: 2rem;
         padding-bottom: 2rem;
     }
-    .metric-card {
-        background-color: white;
-        padding: 18px;
-        border-radius: 16px;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-        border-left: 5px solid #2563eb;
-    }
-    h1, h2, h3 {
+    h1 {
         color: #0f172a;
+        font-weight: 800;
+    }
+    h2, h3 {
+        color: #1e293b;
+    }
+    div[data-testid="metric-container"] {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+        padding: 16px;
+        border-radius: 14px;
+        box-shadow: 0px 4px 12px rgba(15, 23, 42, 0.06);
     }
     </style>
     """,
@@ -41,27 +47,57 @@ st.markdown(
 )
 
 # ------------------------------------------------------------
+# File Paths
+# ------------------------------------------------------------
+DATA_DIR = Path("data")
+
+SUMMARY_FILE = DATA_DIR / "attribution_channel_summary.csv"
+
+# This app supports both possible cleaned file names.
+CLEANED_FILE_OPTIONS = [
+    DATA_DIR / "cleaned_multi_touch_attribution_dataset.csv",
+    DATA_DIR / "cleaned_multi__touch_attribution_dataset.csv"
+]
+
+
+def find_cleaned_file():
+    for file_path in CLEANED_FILE_OPTIONS:
+        if file_path.exists():
+            return file_path
+    return None
+
+
+# ------------------------------------------------------------
 # Load Data
 # ------------------------------------------------------------
 @st.cache_data
 def load_data():
-    summary_path = Path("data/attribution_channel_summary.csv")
-    cleaned_path = Path("data/cleaned_multi_touch_attribution_dataset.csv")
-
-    if not summary_path.exists():
+    if not SUMMARY_FILE.exists():
         st.error("Missing file: data/attribution_channel_summary.csv")
         st.stop()
 
-    if not cleaned_path.exists():
-        st.error("Missing file: data/cleaned_multi_touch_attribution_dataset.csv")
+    cleaned_file = find_cleaned_file()
+
+    if cleaned_file is None:
+        st.error(
+            "Missing cleaned dataset. Please add one of these files inside the data folder:\n\n"
+            "1. cleaned_multi_touch_attribution_dataset.csv\n"
+            "2. cleaned_multi__touch_attribution_dataset.csv"
+        )
         st.stop()
 
-    summary_df = pd.read_csv(summary_path)
-    cleaned_df = pd.read_csv(cleaned_path)
+    summary_df = pd.read_csv(SUMMARY_FILE)
+    cleaned_df = pd.read_csv(cleaned_file)
 
+    # Standardize column names just in case there are spaces
+    summary_df.columns = summary_df.columns.str.strip()
+    cleaned_df.columns = cleaned_df.columns.str.strip()
+
+    # Convert timestamp if available
     if "event_timestamp_utc" in cleaned_df.columns:
         cleaned_df["event_timestamp_utc"] = pd.to_datetime(
-            cleaned_df["event_timestamp_utc"], errors="coerce"
+            cleaned_df["event_timestamp_utc"],
+            errors="coerce"
         )
 
     return summary_df, cleaned_df
@@ -70,39 +106,70 @@ def load_data():
 summary_df, cleaned_df = load_data()
 
 # ------------------------------------------------------------
+# Required Column Check
+# ------------------------------------------------------------
+required_summary_columns = {
+    "attribution_model",
+    "channel",
+    "attributed_conversions",
+    "attributed_revenue",
+    "total_spend",
+    "roas",
+    "cac"
+}
+
+missing_columns = required_summary_columns - set(summary_df.columns)
+
+if missing_columns:
+    st.error(f"Missing columns in attribution_channel_summary.csv: {missing_columns}")
+    st.stop()
+
+# ------------------------------------------------------------
 # Header
 # ------------------------------------------------------------
-st.title("📊 Multi-Touch Marketing Attribution & ROI Dashboard")
+st.title("Multi-Touch Marketing Attribution and ROI Dashboard")
+
 st.markdown(
     """
-    This Streamlit dashboard analyzes how marketing channels contribute to conversions and revenue using
-    **First-Touch**, **Last-Touch**, and **Linear Attribution** models.
+    This dashboard analyzes marketing channel performance using **First-Touch**, 
+    **Last-Touch**, and **Linear Attribution** models. It helps identify which 
+    channels contribute most to revenue, conversions, ROAS, and CAC.
     """
 )
 
 # ------------------------------------------------------------
 # Sidebar Filters
 # ------------------------------------------------------------
-st.sidebar.header("Dashboard Filters")
+st.sidebar.title("Dashboard Filters")
 
-available_models = sorted(summary_df["attribution_model"].dropna().unique())
+models = sorted(summary_df["attribution_model"].dropna().unique())
+
+default_model_index = 0
+if "Linear" in models:
+    default_model_index = models.index("Linear")
+
 selected_model = st.sidebar.radio(
     "Select Attribution Model",
-    available_models,
-    index=available_models.index("Linear") if "Linear" in available_models else 0
+    models,
+    index=default_model_index
 )
 
-available_channels = sorted(summary_df["channel"].dropna().unique())
+channels = sorted(summary_df["channel"].dropna().unique())
+
 selected_channels = st.sidebar.multiselect(
     "Select Channels",
-    available_channels,
-    default=available_channels
+    channels,
+    default=channels
 )
 
 filtered_df = summary_df[
     (summary_df["attribution_model"] == selected_model)
     & (summary_df["channel"].isin(selected_channels))
 ].copy()
+
+if filtered_df.empty:
+    st.warning("No data available for the selected filters.")
+    st.stop()
 
 # ------------------------------------------------------------
 # KPI Cards
@@ -111,81 +178,97 @@ total_spend = filtered_df["total_spend"].sum()
 total_revenue = filtered_df["attributed_revenue"].sum()
 total_conversions = filtered_df["attributed_conversions"].sum()
 
-overall_roas = total_revenue / total_spend if total_spend else 0
-overall_cac = total_spend / total_conversions if total_conversions else 0
+overall_roas = total_revenue / total_spend if total_spend != 0 else 0
+overall_cac = total_spend / total_conversions if total_conversions != 0 else 0
 
-col1, col2, col3, col4, col5 = st.columns(5)
+kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
 
-col1.metric("Total Spend", f"${total_spend:,.2f}")
-col2.metric("Attributed Revenue", f"${total_revenue:,.2f}")
-col3.metric("Attributed Conversions", f"{total_conversions:,.2f}")
-col4.metric("ROAS", f"{overall_roas:,.2f}")
-col5.metric("CAC", f"${overall_cac:,.2f}")
+kpi1.metric("Total Spend", f"${total_spend:,.2f}")
+kpi2.metric("Attributed Revenue", f"${total_revenue:,.2f}")
+kpi3.metric("Attributed Conversions", f"{total_conversions:,.2f}")
+kpi4.metric("ROAS", f"{overall_roas:,.2f}")
+kpi5.metric("CAC", f"${overall_cac:,.2f}")
 
 st.divider()
 
 # ------------------------------------------------------------
-# Main Charts
+# Dashboard Charts
 # ------------------------------------------------------------
-left_col, right_col = st.columns(2)
+chart_col1, chart_col2 = st.columns(2)
 
-with left_col:
+with chart_col1:
     st.subheader("Channel Revenue")
-    fig_revenue = px.bar(
+    revenue_chart = px.bar(
         filtered_df.sort_values("attributed_revenue", ascending=True),
         x="attributed_revenue",
         y="channel",
         orientation="h",
         text="attributed_revenue",
-        title=f"Attributed Revenue by Channel ({selected_model})"
+        title=f"Attributed Revenue by Channel - {selected_model}"
     )
-    fig_revenue.update_traces(texttemplate="%{text:.2s}", textposition="outside")
-    fig_revenue.update_layout(height=420, xaxis_title="Attributed Revenue", yaxis_title="Channel")
-    st.plotly_chart(fig_revenue, use_container_width=True)
+    revenue_chart.update_traces(texttemplate="%{text:.2s}", textposition="outside")
+    revenue_chart.update_layout(
+        height=430,
+        xaxis_title="Attributed Revenue",
+        yaxis_title="Channel"
+    )
+    st.plotly_chart(revenue_chart, use_container_width=True)
 
-with right_col:
+with chart_col2:
     st.subheader("ROAS by Channel")
-    fig_roas = px.bar(
+    roas_chart = px.bar(
         filtered_df.sort_values("roas", ascending=True),
         x="roas",
         y="channel",
         orientation="h",
         text="roas",
-        title=f"Return on Ad Spend by Channel ({selected_model})"
+        title=f"ROAS by Channel - {selected_model}"
     )
-    fig_roas.update_traces(texttemplate="%{text:.2f}", textposition="outside")
-    fig_roas.update_layout(height=420, xaxis_title="ROAS", yaxis_title="Channel")
-    st.plotly_chart(fig_roas, use_container_width=True)
+    roas_chart.update_traces(texttemplate="%{text:.2f}", textposition="outside")
+    roas_chart.update_layout(
+        height=430,
+        xaxis_title="ROAS",
+        yaxis_title="Channel"
+    )
+    st.plotly_chart(roas_chart, use_container_width=True)
 
-left_col2, right_col2 = st.columns(2)
+chart_col3, chart_col4 = st.columns(2)
 
-with left_col2:
+with chart_col3:
     st.subheader("CAC by Channel")
-    fig_cac = px.bar(
+    cac_chart = px.bar(
         filtered_df.sort_values("cac", ascending=True),
         x="cac",
         y="channel",
         orientation="h",
         text="cac",
-        title=f"Customer Acquisition Cost by Channel ({selected_model})"
+        title=f"CAC by Channel - {selected_model}"
     )
-    fig_cac.update_traces(texttemplate="%{text:.2f}", textposition="outside")
-    fig_cac.update_layout(height=420, xaxis_title="CAC", yaxis_title="Channel")
-    st.plotly_chart(fig_cac, use_container_width=True)
+    cac_chart.update_traces(texttemplate="%{text:.2f}", textposition="outside")
+    cac_chart.update_layout(
+        height=430,
+        xaxis_title="CAC",
+        yaxis_title="Channel"
+    )
+    st.plotly_chart(cac_chart, use_container_width=True)
 
-with right_col2:
+with chart_col4:
     st.subheader("Conversions by Channel")
-    fig_conversions = px.bar(
+    conversion_chart = px.bar(
         filtered_df.sort_values("attributed_conversions", ascending=True),
         x="attributed_conversions",
         y="channel",
         orientation="h",
         text="attributed_conversions",
-        title=f"Attributed Conversions by Channel ({selected_model})"
+        title=f"Attributed Conversions by Channel - {selected_model}"
     )
-    fig_conversions.update_traces(texttemplate="%{text:.2f}", textposition="outside")
-    fig_conversions.update_layout(height=420, xaxis_title="Attributed Conversions", yaxis_title="Channel")
-    st.plotly_chart(fig_conversions, use_container_width=True)
+    conversion_chart.update_traces(texttemplate="%{text:.2f}", textposition="outside")
+    conversion_chart.update_layout(
+        height=430,
+        xaxis_title="Attributed Conversions",
+        yaxis_title="Channel"
+    )
+    st.plotly_chart(conversion_chart, use_container_width=True)
 
 st.divider()
 
@@ -196,24 +279,37 @@ st.subheader("Customer Funnel Analysis")
 
 if "funnel_stage" in cleaned_df.columns and "event_id" in cleaned_df.columns:
     funnel_order = ["Awareness", "Consideration", "Decision", "Purchase"]
+
     funnel_df = (
         cleaned_df.groupby("funnel_stage")["event_id"]
         .count()
-        .reindex(funnel_order)
-        .dropna()
         .reset_index()
+        .rename(columns={"event_id": "touchpoints"})
     )
-    funnel_df.columns = ["funnel_stage", "touchpoints"]
 
-    fig_funnel = px.funnel(
+    # Apply order only if these labels exist
+    existing_order = [stage for stage in funnel_order if stage in funnel_df["funnel_stage"].values]
+
+    if existing_order:
+        funnel_df["funnel_stage"] = pd.Categorical(
+            funnel_df["funnel_stage"],
+            categories=existing_order,
+            ordered=True
+        )
+        funnel_df = funnel_df.sort_values("funnel_stage")
+
+    funnel_chart = px.funnel(
         funnel_df,
         x="touchpoints",
         y="funnel_stage",
         title="Funnel Stage Touchpoint Count"
     )
-    st.plotly_chart(fig_funnel, use_container_width=True)
+    funnel_chart.update_layout(height=420)
+    st.plotly_chart(funnel_chart, use_container_width=True)
 else:
-    st.warning("Funnel columns not found in cleaned dataset.")
+    st.info("Funnel analysis requires funnel_stage and event_id columns in the cleaned dataset.")
+
+st.divider()
 
 # ------------------------------------------------------------
 # Data Table
@@ -221,41 +317,59 @@ else:
 st.subheader("Attribution Channel Summary Table")
 
 display_df = filtered_df.copy()
-numeric_cols = ["attributed_conversions", "attributed_revenue", "total_spend", "roas", "cac"]
-for col in numeric_cols:
-    if col in display_df.columns:
-        display_df[col] = display_df[col].round(2)
+
+round_columns = [
+    "attributed_conversions",
+    "attributed_revenue",
+    "total_spend",
+    "roas",
+    "cac"
+]
+
+for column in round_columns:
+    if column in display_df.columns:
+        display_df[column] = display_df[column].round(2)
 
 st.dataframe(display_df, use_container_width=True)
 
 # ------------------------------------------------------------
 # Business Insights
 # ------------------------------------------------------------
-st.subheader("Business Interpretation")
+st.subheader("Business Insights")
 
-top_revenue_channel = (
-    filtered_df.sort_values("attributed_revenue", ascending=False)["channel"].iloc[0]
-    if not filtered_df.empty else "N/A"
-)
-top_roas_channel = (
-    filtered_df.sort_values("roas", ascending=False)["channel"].iloc[0]
-    if not filtered_df.empty else "N/A"
-)
-lowest_cac_channel = (
-    filtered_df.sort_values("cac", ascending=True)["channel"].iloc[0]
-    if not filtered_df.empty else "N/A"
-)
+top_revenue_channel = filtered_df.sort_values(
+    "attributed_revenue",
+    ascending=False
+)["channel"].iloc[0]
+
+top_roas_channel = filtered_df.sort_values(
+    "roas",
+    ascending=False
+)["channel"].iloc[0]
+
+lowest_cac_channel = filtered_df.sort_values(
+    "cac",
+    ascending=True
+)["channel"].iloc[0]
 
 st.markdown(
     f"""
+    Based on the selected **{selected_model}** model:
+
     - **Top revenue channel:** `{top_revenue_channel}`
     - **Best ROAS channel:** `{top_roas_channel}`
     - **Lowest CAC channel:** `{lowest_cac_channel}`
 
-    These insights help marketing managers identify which channels deserve more budget and which channels need optimization.
+    These results help marketing managers compare channels, reduce wasted ad spend,
+    and make better budget allocation decisions.
     """
 )
 
-st.info(
-    "Tip: Change the attribution model in the sidebar to see how channel performance changes under First-Touch, Last-Touch, and Linear Attribution."
+# ------------------------------------------------------------
+# Footer
+# ------------------------------------------------------------
+st.divider()
+
+st.caption(
+    "Created by Chaitanya Pawar | Data Analytics Internship Project | Infotact Solutions & Co."
 )
