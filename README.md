@@ -1,394 +1,331 @@
-# 🎯 Multi-Touch Attribution Analytics
+# 📊 Multi-Touch Marketing Attribution & ROI Dashboard
 
-### Decoding the Customer Journey Through Data
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Data%20Analytics-Marketing%20Intelligence-blue" />
-  <img src="https://img.shields.io/badge/Python-3.10+-green" />
-  <img src="https://img.shields.io/badge/Status-Completed-success" />
-  <img src="https://img.shields.io/badge/License-MIT-orange" />
-</p>
+> A data analytics internship project that explains **which marketing channels truly drive conversions, revenue, ROAS, and CAC** using First-Touch, Last-Touch, and Linear Attribution models.
 
 ---
 
-## 🚀 Project Story
+## 👤 Project Information
 
-Imagine a customer discovers a product through Instagram, later clicks a Google Ad, receives an Email Campaign, and finally makes a purchase after visiting the website directly.
-
-**Who deserves credit for the sale?**
-
-Traditional marketing analytics often gives all credit to a single touchpoint, leaving marketers with an incomplete picture. This project leverages **Multi-Touch Attribution (MTA)** to uncover the true influence of every interaction across the customer journey.
-
-By analyzing customer behavior across multiple channels, this project helps businesses make smarter marketing decisions, optimize campaign budgets, and maximize ROI.
+**Project Name:** Multi-Touch Marketing Attribution and ROI Dashboard
+**Submitted By:** Chaitanya Pawar
+**Organization:** Infotact Solutions & Co.
+**Domain:** Marketing Analytics / Data Analytics
+**Tools Used:** Python, Pandas, NumPy, SQL, Google Colab, Tableau
 
 ---
 
-## 🌟 Why This Project Matters
+## 🚀 Project Overview
 
-Modern customers rarely convert after a single interaction. Their journey is often complex and nonlinear.
+Modern businesses spend money across multiple marketing channels such as **Google Ads, Meta Ads, TikTok Ads, LinkedIn Ads, Email, Organic Search, Referral, and Direct traffic**.
 
-This project aims to:
+But customers rarely convert after seeing only one ad.
 
-✅ Reveal hidden patterns in customer journeys
-
-✅ Measure the contribution of every marketing channel
-
-✅ Compare multiple attribution models
-
-✅ Optimize marketing spend using data-driven insights
-
-✅ Support strategic decision-making with analytics
-
----
-
-## 🗺️ Customer Journey Visualization
+A typical customer journey may look like this:
 
 ```text
-Instagram Ad
-      │
-      ▼
-Google Search
-      │
-      ▼
-Email Campaign
-      │
-      ▼
-Website Visit
-      │
-      ▼
-Purchase ✅
+Meta Ads → Organic Search → Email → Google Ads → Conversion
 ```
 
-Instead of assigning all credit to the final step, Multi-Touch Attribution distributes credit intelligently across the entire journey.
+Traditional **Last-Click Attribution** gives all credit to the final channel. This can mislead marketing teams because earlier touchpoints may have played an important role in influencing the customer.
+
+This project solves that problem by creating a **Multi-Touch Attribution model** and an interactive **Tableau ROI Dashboard**.
 
 ---
 
-# 📊 Dataset Overview
+## 🎯 Business Problem
 
-The dataset captures customer interactions across various marketing channels.
+Marketing teams need to answer:
 
-| Feature     | Description                |
-| ----------- | -------------------------- |
-| Customer_ID | Unique customer identifier |
-| Channel     | Marketing source           |
-| Campaign    | Campaign name              |
-| Timestamp   | Interaction time           |
-| Device      | Mobile/Desktop/Tablet      |
-| Conversion  | Purchase status            |
-| Revenue     | Generated revenue          |
-| Region      | Customer location          |
+* Which channel brings the highest attributed revenue?
+* Which channel gives the best ROAS?
+* Which channel has the lowest CAC?
+* Which attribution model changes the business decision?
+* Where should the marketing budget be increased or reduced?
+
+This project helps answer these questions using data.
 
 ---
 
-# 🧰 Tech Stack
+## 🧠 Attribution Models Used
 
-### Programming
+### 1. First-Touch Attribution
 
-🐍 Python
-
-### Data Processing
-
-📊 Pandas
-
-🔢 NumPy
-
-### Visualization
-
-📈 Matplotlib
-
-📉 Seaborn
-
-### Machine Learning
-
-🤖 Scikit-Learn
-
-### Environment
-
-📓 Jupyter Notebook
-
-🗄️ SQL
-
----
-
-# 🔍 Attribution Models Explored
-
-## 1️⃣ First Touch Attribution
+The first marketing channel in a converted customer journey gets full credit.
 
 ```text
-100% Credit → First Interaction
+Google Ads → Email → Direct → Conversion
 ```
 
-Customer discovered the brand through Instagram?
-
-Instagram gets all the credit.
-
-### Best For
-
-* Brand Awareness Analysis
-* Lead Generation Campaigns
-
----
-
-## 2️⃣ Last Touch Attribution
+Credit goes to:
 
 ```text
-100% Credit → Final Interaction
+Google Ads
 ```
 
-Customer purchased after clicking Email?
+### 2. Last-Touch Attribution
 
-Email receives all attribution credit.
-
-### Best For
-
-* Conversion Analysis
-* Sales Optimization
-
----
-
-## 3️⃣ Linear Attribution
+The last marketing channel before conversion gets full credit.
 
 ```text
-Equal Credit → Every Touchpoint
+Google Ads → Email → Direct → Conversion
 ```
 
-Example:
-
-Instagram = 25%
-
-Google = 25%
-
-Email = 25%
-
-Direct Visit = 25%
-
-### Best For
-
-* Balanced Channel Evaluation
-
----
-
-## 4️⃣ Time Decay Attribution
+Credit goes to:
 
 ```text
-More Recent = More Credit
+Direct
 ```
 
-Interactions closer to conversion receive higher weights.
+### 3. Linear Attribution
 
-### Best For
-
-* Long Customer Journeys
-* Retargeting Campaigns
-
----
-
-## 5️⃣ Position-Based Attribution
+All touchpoints in the customer journey share credit equally.
 
 ```text
-40% → First Touch
-
-40% → Last Touch
-
-20% → Remaining Touchpoints
+Google Ads → Email → Direct → Conversion
 ```
 
-Balances awareness and conversion impact.
-
-### Best For
-
-* Full Funnel Marketing Analysis
-
----
-
-# ⚙️ Project Workflow
+Credit is shared between:
 
 ```text
-Raw Marketing Data
-        │
-        ▼
-Data Cleaning
-        │
-        ▼
-Exploratory Data Analysis
-        │
-        ▼
-Customer Journey Mapping
-        │
-        ▼
-Attribution Modeling
-        │
-        ▼
-Visualization & Insights
-        │
-        ▼
-Business Recommendations
+Google Ads + Email + Direct
 ```
 
 ---
 
-# 📈 Exploratory Data Analysis
-
-Key analyses performed:
-
-🔹 Channel-wise conversion trends
-
-🔹 Revenue contribution analysis
-
-🔹 Customer journey patterns
-
-🔹 Campaign effectiveness comparison
-
-🔹 Conversion funnel analysis
-
-🔹 Marketing touchpoint frequency
-
----
-
-# 🎯 Key Metrics
-
-| Metric               | Purpose                                  |
-| -------------------- | ---------------------------------------- |
-| Conversion Rate      | Measures campaign effectiveness          |
-| ROAS                 | Return on Advertising Spend              |
-| CAC                  | Customer Acquisition Cost                |
-| Revenue Attribution  | Revenue contribution by channel          |
-| Touchpoint Frequency | Customer engagement level                |
-| Journey Length       | Number of interactions before conversion |
-
----
-
-# 📊 Sample Insights
-
-### 🔥 Top Performing Channels
-
-* Email Marketing generated the highest conversion rate.
-* Paid Search contributed the highest attributed revenue.
-* Social Media dominated awareness-stage interactions.
-
-### 💡 Customer Behavior Patterns
-
-* Most customers converted after 3–5 touchpoints.
-* Multi-channel journeys had significantly higher conversion rates.
-* Returning visitors generated higher revenue than first-time visitors.
-
----
-
-# 📂 Project Structure
+## 📁 Project Folder Structure
 
 ```text
-📁 Multi-Touch-Attribution
-
-├── 📁 data
-│   ├── raw_data.csv
-│   └── processed_data.csv
+multi_touch_attribution_roi_dashboard
 │
-├── 📁 notebooks
-│   ├── Data_Preprocessing.ipynb
-│   ├── EDA.ipynb
-│   └── Attribution_Models.ipynb
+├── data
+│   ├── multi_touch_attribution_dataset.csv
+│   ├── cleaned_multi_touch_attribution_dataset.csv
+│   ├── attribution_model_output.csv
+│   └── attribution_channel_summary.csv
 │
-├── 📁 src
-│   ├── preprocessing.py
-│   ├── attribution.py
-│   └── visualization.py
+├── notebooks
+│   ├── 01_data_cleaning_and_eda.ipynb
+│   └── 03_kpi_calculation_and_modeling.ipynb
 │
-├── 📁 dashboards
+├── sql
+│   └── 02_attribution_model_queries.sql
 │
-├── 📁 reports
+├── dashboard
+│   └── multi_touch_attribution_dashboard.twbx
 │
-├── requirements.txt
+├── reports
+│   ├── multi_touch_attribution_roi_report.docx
+│   ├── multi_touch_attribution_roi_report.pdf
+│   └── dashboard_screenshot.png
 │
-└── README.md
+├── presentation
+│   └── multi_touch_attribution_roi_presentation.pptx
+│
+├── README.md
+└── requirements.txt
 ```
 
 ---
 
-# 🚀 Getting Started
+## 🗂️ Dataset Description
 
-### Clone Repository
+The dataset contains customer journey-level marketing touchpoint data.
+
+### Key Columns
+
+| Column                | Description                                     |
+| --------------------- | ----------------------------------------------- |
+| `event_id`            | Unique event ID                                 |
+| `user_id`             | Unique customer/user ID                         |
+| `journey_id`          | Complete journey of one customer                |
+| `session_id`          | Session-level identifier                        |
+| `event_timestamp_utc` | Timestamp of the marketing touchpoint           |
+| `channel`             | Marketing channel                               |
+| `campaign`            | Campaign name                                   |
+| `funnel_stage`        | Awareness, Consideration, Decision, or Purchase |
+| `ad_spend`            | Marketing cost for touchpoint                   |
+| `is_conversion`       | 1 if conversion happened, else 0                |
+| `conversion_value`    | Revenue generated from conversion               |
+| `device`              | User device                                     |
+| `region`              | User region                                     |
+
+---
+
+## 📌 Dataset Snapshot
+
+| Metric                   | Value |
+| ------------------------ | ----: |
+| Total Touchpoint Records | 1,926 |
+| Total Columns            |    26 |
+| Total Customer Journeys  |   500 |
+| Converted Journeys       |   209 |
+| Marketing Channels       |     8 |
+
+---
+
+## 🧹 Data Cleaning Process
+
+The data was cleaned using Python and Pandas.
+
+Main cleaning steps:
+
+1. Loaded the CSV dataset in Google Colab.
+2. Converted timestamp columns into proper datetime format.
+3. Converted `ad_spend` and `conversion_value` into numeric format.
+4. Removed duplicate `event_id` records.
+5. Sorted records by `journey_id` and `event_timestamp_utc`.
+6. Saved the cleaned dataset for further analysis.
+
+Output file:
+
+```text
+cleaned_multi_touch_attribution_dataset.csv
+```
+
+---
+
+## 🧮 KPI Metrics Calculated
+
+| KPI                    | Formula                                         |
+| ---------------------- | ----------------------------------------------- |
+| Total Spend            | Sum of `ad_spend`                               |
+| Attributed Revenue     | Revenue assigned by attribution model           |
+| Attributed Conversions | Conversion credit assigned by attribution model |
+| ROAS                   | Attributed Revenue ÷ Total Spend                |
+| CAC                    | Total Spend ÷ Attributed Conversions            |
+
+---
+
+## 🧾 SQL Logic
+
+SQL was used to show how customer journeys can be ranked and analyzed using window functions.
+
+Main SQL concepts used:
+
+* `ROW_NUMBER()`
+* `PARTITION BY`
+* `ORDER BY`
+* First-touch ranking
+* Last-touch ranking
+* Channel-level aggregation
+* ROAS and CAC calculation
+
+SQL file:
+
+```text
+sql/02_attribution_model_queries.sql
+```
+
+---
+
+## 📊 Tableau Dashboard
+
+The final dashboard was created in Tableau.
+
+### Dashboard Charts
+
+| Chart                  | Purpose                                       |
+| ---------------------- | --------------------------------------------- |
+| Channel Revenue        | Shows attributed revenue by marketing channel |
+| ROAS by Channel        | Shows return on ad spend                      |
+| CAC by Channel         | Shows customer acquisition cost               |
+| Conversions by Channel | Shows attributed conversions                  |
+
+### Dashboard Preview
+
+![Dashboard Screenshot](reports/dashboard_screenshot.png)
+
+---
+
+## 🔍 Key Insights
+
+Based on the dashboard:
+
+* **Google Ads** shows strong attributed revenue and conversions.
+* **Organic Search** performs well in revenue contribution.
+* **Email** shows very high ROAS because of low spend and strong revenue impact.
+* **LinkedIn Ads and Meta Ads** show higher CAC, meaning they are more expensive for acquiring customers.
+* Different attribution models can change how marketing performance is interpreted.
+
+---
+
+## 🧠 Business Recommendations
+
+1. Increase investment in channels with high ROAS and strong conversions.
+2. Monitor high-CAC channels carefully before increasing budget.
+3. Do not depend only on Last-Touch Attribution.
+4. Use Linear Attribution for a fairer view of the complete customer journey.
+5. Review campaigns regularly to reduce wasted ad spend.
+
+---
+
+## 🛠️ How to Run This Project
+
+### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/multi-touch-attribution.git
+git clone https://github.com/your-username/multi_touch_attribution_roi_dashboard.git
 ```
 
-### Install Dependencies
+### Step 2: Install Required Libraries
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Launch Notebook
+### Step 3: Open the Notebooks
 
-```bash
-jupyter notebook
+Open the notebooks in Jupyter Notebook or Google Colab:
+
+```text
+notebooks/01_data_cleaning_and_eda.ipynb
+notebooks/03_kpi_calculation_and_modeling.ipynb
+```
+
+### Step 4: Open Tableau Dashboard
+
+Open this file in Tableau:
+
+```text
+dashboard/multi_touch_attribution_dashboard.twbx
 ```
 
 ---
 
-# 📸 Expected Deliverables
+## 📦 Final Deliverables
 
-✔ Interactive Visualizations
-
-✔ Attribution Reports
-
-✔ Customer Journey Maps
-
-✔ Revenue Contribution Dashboard
-
-✔ Marketing Optimization Recommendations
-
-✔ Business Intelligence Insights
+| Deliverable       | Status    |
+| ----------------- | --------- |
+| Cleaned Dataset   | Completed |
+| Python Notebooks  | Completed |
+| SQL Queries       | Completed |
+| Tableau Dashboard | Completed |
+| Final Report      | Completed |
+| Presentation PPT  | Completed |
 
 ---
 
-# 🔮 Future Enhancements
+## 🌐 Live Dashboard
 
-### Advanced Attribution Techniques
+Tableau Public Link:
 
-* Markov Chain Attribution
-* Shapley Value Attribution
-* Machine Learning Attribution Models
-
-### Dashboard Integration
-
-* Power BI
-* Tableau
-* Streamlit
-
-### Real-Time Analytics
-
-* Live Marketing Attribution
-* Automated Reporting
-* Predictive Conversion Modeling
+```text
+Paste your Tableau Public dashboard link here
+```
 
 ---
 
-# 🏆 Business Impact
+## 🧑‍💻 Author
 
-This project enables organizations to:
+**Chaitanya Pawar**
 
-🎯 Identify high-performing channels
-
-💰 Optimize marketing budgets
-
-📈 Improve conversion rates
-
-🚀 Increase campaign ROI
-
-🔍 Understand customer behavior
-
-📊 Make data-driven decisions
+Data Analytics Internship Project
+Infotact Solutions & Co.
 
 ---
 
-## 👨‍💻 Author
+## ⭐ Project Summary
 
-**Data Analytics Project**
-Focused on Marketing Intelligence, Customer Journey Analysis, and Multi-Touch Attribution Modeling.
+This project demonstrates how data analytics can improve marketing budget decisions. By comparing First-Touch, Last-Touch, and Linear Attribution models, the dashboard gives a clearer understanding of customer journeys and channel-level ROI.
 
----
-
-### ⭐ If you found this project useful, consider giving it a star!
-
-### 📊 Turning Marketing Data into Meaningful Decisions.
+The final Tableau dashboard helps marketing managers identify high-performing channels, reduce wasted spend, and make data-driven budget allocation decisions.
