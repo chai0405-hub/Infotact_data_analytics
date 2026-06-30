@@ -6,7 +6,6 @@ from pathlib import Path
 
 # ============================================================
 # Multi-Touch Marketing Attribution and ROI Dashboard
-# Author: Chaitanya Pawar
 # Internship Project: Infotact Solutions & Co.
 # Final Streamlit App
 # ============================================================
@@ -55,22 +54,33 @@ st.markdown(
 # ------------------------------------------------------------
 DATA_DIR = Path("data")
 
-SUMMARY_FILE = DATA_DIR / "attribution_channel_summary.csv"
-ATTRIBUTION_FILE = DATA_DIR / "attribution_model_output.csv"
 
-# Supports both possible cleaned file names
-CLEANED_FILE_OPTIONS = [
-    DATA_DIR / "cleaned_multi_touch_attribution_dataset.csv",
-    DATA_DIR / "cleaned_multi__touch_attribution_dataset.csv"
-]
+def find_file(file_names):
+    """
+    Finds files either in the repository root or inside the data folder.
+    This matches the current GitHub repository structure.
+    """
+    for file_name in file_names:
+        possible_paths = [
+            Path(file_name),
+            DATA_DIR / file_name
+        ]
 
+        for file_path in possible_paths:
+            if file_path.exists():
+                return file_path
 
-def find_cleaned_file():
-    """Find the cleaned dataset even if the file name has a double underscore."""
-    for file_path in CLEANED_FILE_OPTIONS:
-        if file_path.exists():
-            return file_path
     return None
+
+
+SUMMARY_FILE = find_file(["attribution_channel_summary.csv"])
+ATTRIBUTION_FILE = find_file(["attribution_model_output.csv"])
+CLEANED_FILE = find_file(
+    [
+        "cleaned_multi_touch_attribution_dataset.csv",
+        "cleaned_multi__touch_attribution_dataset.csv"
+    ]
+)
 
 
 @st.cache_data
@@ -78,10 +88,10 @@ def load_data():
     """Load summary, cleaned, and attribution output datasets."""
 
     if not SUMMARY_FILE.exists():
-        st.error("Missing required file: data/attribution_channel_summary.csv")
+        st.error("Missing required file: attribution_channel_summary.csv. Keep it in the repository root or inside the data folder.")
         st.stop()
 
-    cleaned_file = find_cleaned_file()
+    cleaned_file = CLEANED_FILE
 
     if cleaned_file is None:
         st.error(
@@ -445,7 +455,7 @@ if attribution_df is not None and required_attribution_columns.issubset(attribut
 else:
     # Fallback: use cleaned dataset if attribution_model_output.csv is missing.
     st.warning(
-        "data/attribution_model_output.csv is missing or incomplete. "
+        "attribution_model_output.csv is missing or incomplete. "
         "Showing fallback campaign analysis from cleaned dataset."
     )
 
@@ -566,4 +576,3 @@ st.success(
     "Dashboard includes attribution model toggle, ROI scatter plot, funnel analysis, campaign-level drilldown, and executive insights."
 )
 
-st.caption("Created by Chaitanya Pawar | Data Analytics Internship Project | Infotact Solutions & Co.")
